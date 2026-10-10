@@ -1,0 +1,183 @@
+<html>
+<head>
+    <title>Pharmacy System</title>
+</head>
+<body>
+    <header>
+        <h1>Pharmacy System</h1>
+        <hr>
+    </header>
+
+    <section id="loginSection">
+        <form>
+            <p>
+                Pharmacist Employee ID:
+                <br><input type="text" id="empID" placeholder="Enter your Employee ID" required><br>
+            </p>
+            
+            <p>
+                Password:
+                <br><input type="password" id="pass" placeholder="Enter Password" required><br><br>
+            </p>
+            <input type="button" value="Login As Pharmacist" onclick="processDetails('pharmacist')">
+            <input type="button" value="Login As Admin" onclick="processDetails('admin')">
+        </form>
+    </section>
+
+    <hr>
+    <p id="output"></p>
+
+    <!-- Pharmacist View -->
+    <div id="pharmacistView" style="display:none;">
+        <h2>The Inventory contains:</h2>
+        <li>Category</li>
+        <li>Brand</li>
+        <li>Generic Name</li>
+        <li>Dosage and Price</li>
+
+        
+        <h2>Medicine List</h2>
+        <table border="2" cellpadding="6" id="medTablePharma">
+            <tr>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Generic Name</th>
+                <th>Dosage</th>
+                <th>Price</th>
+            </tr>
+        </table>
+        <p><em>View-only access</em></p>
+    </div>
+
+    <!-- Admin View -->
+    <div id="adminView" style="display:none;">
+        <h2>✅ Admin Login Successful!</h2>
+        <h3>The Inventory contains:</h3>
+        <ul>
+            <li>Category</li>
+            <li>Brand</li>
+            <li>Generic Name</li>
+            <li>Dosage</li>
+            <li>Price</li>
+        </ul>
+
+        <h3>Add / Edit Medicine</h3>
+        <form id="medicineForm">
+            <p>Category:
+                <input type="text" id="cat" placeholder="e.g. Antibiotic" required>
+            </p>
+            <p>Brand:
+                <input type="text" id="brand" placeholder="e.g. Bioflu" required>
+            </p>
+            <p>Generic Name:
+                <input type="text" id="gen" placeholder="e.g. Paracetamol" required>
+            </p>
+            <p>Dosage and Price:
+                <input type="text" id="dose" placeholder="e.g. 500mg" required>
+            </p>
+            <p>Price:
+                <input type="text" id="price" placeholder="e.g. ₱25" required>
+            </p>
+            <input type="button" value="Add Medicine" onclick="addMedicine()">
+        </form>
+
+        <h3>Medicine List</h3>
+        <table border="1" cellpadding="8" id="medTableAdmin">
+            <tr>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Generic Name</th>
+                <th>Dosage</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </table>
+    </div>
+
+<script>
+// Login function — kept your original logic
+function processDetails(role) {
+    var empID = document.getElementById("empID").value;
+    var pass = document.getElementById("pass").value;
+
+    if (empID !== "" && pass !== ""){
+        // Hide login section
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("output").innerHTML = "";
+
+        if (role === "pharmacist") {
+            alert("Pharmacist Login Successful!");
+            document.getElementById("pharmacistView").style.display = "block";
+        }
+        else if (role === "admin") {
+            alert("Admin Login Successful!");
+            document.getElementById("adminView").style.display = "block";
+        }
+    } else {
+        alert("Please fill in both Employee ID and Password.");
+    }
+}
+
+// Add medicine — Admin only
+function addMedicine() {
+    var cat = document.getElementById("cat").value;
+    var brand = document.getElementById("brand").value;
+    var gen = document.getElementById("gen").value;
+    var dose = document.getElementById("dose").value;
+    var price = document.getElementById("price").value;
+
+    if (cat === "" || brand === "" || gen === "" || dose === "" || price === "") {
+        alert("Fill all fields first.");
+        return;
+    }
+
+    var table = document.getElementById("medTableAdmin");
+    var row = table.insertRow();
+    row.insertCell(0).innerHTML = cat;
+    row.insertCell(1).innerHTML = brand;
+    row.insertCell(2).innerHTML = gen;
+    row.insertCell(3).innerHTML = dose;
+    row.insertCell(4).innerHTML = price;
+    row.insertCell(5).innerHTML = 
+        `<button onclick="editRow(this)">Edit</button>
+         <button onclick="deleteRow(this)">Delete</button>`;
+
+    // Also add to pharmacist view table so both stay in sync
+    var pTable = document.getElementById("medTablePharma");
+    var pRow = pTable.insertRow();
+    pRow.insertCell(0).innerHTML = cat;
+    pRow.insertCell(1).innerHTML = brand;
+    pRow.insertCell(2).innerHTML = gen;
+    pRow.insertCell(3).innerHTML = dose;
+    pRow.insertCell(4).innerHTML = price;
+
+    document.getElementById("medicineForm").reset();
+}
+
+function editRow(btn) {
+    var row = btn.parentElement.parentElement;
+    document.getElementById("cat").value = row.cells[0].innerText;
+    document.getElementById("brand").value = row.cells[1].innerText;
+    document.getElementById("gen").value = row.cells[2].innerText;
+    document.getElementById("dose").value = row.cells[3].innerText;
+    document.getElementById("price").value = row.cells[4].innerText;
+    row.remove();
+    
+    // Remove matching row from pharmacist table
+    var pTable = document.getElementById("medTablePharma");
+    if (pTable.rows.length > 1) pTable.deleteRow(row.rowIndex);
+}
+
+function deleteRow(btn) {
+    if (confirm("Remove this medicine?")) {
+        var row = btn.parentElement.parentElement;
+        var idx = row.rowIndex;
+        row.remove();
+        var pTable = document.getElementById("medTablePharma");
+        if (pTable.rows.length > 1) pTable.deleteRow(idx);
+    }
+}
+</script>
+
+</body>
+</html>
